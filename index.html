@@ -1,0 +1,88 @@
+<html>
+	<head>
+	</head>
+	<body>
+		<label>Source image URL</label>
+		<input id="url" type="text" />
+		<button id="load">load Image</button>
+		<img id="img" src="https://i.imgur.com/Sq0mW5l.png" />
+		<br>
+		<label>top left corner coordinates</label>
+		<input id="x" type="number" value="334" />
+		<input id="y" type="number" value="75" />
+		<label>Scale up factor</label>
+		<input id="scale" type="number" value="32" min="20" max="100" />
+		<button id="btn">Create</button>
+		<br>
+		<canvas id="canvas"></canvas>
+		<div id="result"></div>
+		<script>
+			const canvas = document.getElementById("canvas");
+			const ctx = canvas.getContext('2d');
+			const img = document.getElementById('img');
+			img.crossOrigin = 'anonymous';
+			img.src = 'https://i.imgur.com/fEs3kr1.png';
+			document.getElementById('url').value = img.src;
+
+			document.getElementById('btn').addEventListener('click', draw);
+			document.getElementById('load').addEventListener('click', loadImage);
+			
+			function loadImage() {
+				img.src = document.getElementById('url').value;
+			}
+			
+			function draw() {
+			  const scale = Number.parseInt(document.getElementById('scale').value);
+			  const width = img.width*scale;
+			  const height = img.height*scale;
+			  const cnvWidth = width + 1
+			  const cnvHeight = height + 1;
+			  canvas.width = cnvWidth;
+			  canvas.height = cnvHeight;
+			  
+			  // Draw big image
+			  ctx.imageSmoothingEnabled = false;
+			  ctx.drawImage(img, 0, 0, img.width, img.height, 1, 1, width, height);
+			  
+			  // draw grid lines
+			  ctx.fillStyle = 'grey';
+			  const maxLineX = img.width;
+			  const maxLineY = img.height;
+			  let line = -1;
+			  while (line++ < maxLineX) {
+				ctx.fillRect(scale*line,0,1,cnvHeight);
+			  }
+			  line = -1;
+			  while (line++ < maxLineY) {
+				ctx.fillRect(0, scale*line,cnvWidth,1);
+			  }
+			  
+			  // Draw coordinates
+			  const offsetX = Number.parseInt(document.getElementById('x').value);
+			  const offsetY = Number.parseInt(document.getElementById('y').value);
+			  ctx.fillStyle = 'white';
+			  ctx.strokeStyle = 'black';
+			  ctx.lineWidth = 2;
+			  const lineHeight = Math.floor(scale * 0.4);
+			  ctx.font = `${lineHeight}px monospace`;
+			  ctx.direction = 'rtl';
+			  const padding = Math.floor(scale * 0.12);
+			  for (let x = 0; x < img.width; x++) {
+				let tx = x*scale;
+				for(let y = 0; y < img.height; y++) {
+					let ty = y*scale;
+					
+					const pixel = ctx.getImageData(tx+1, ty+1, 1, 1);
+					const isTransparent = pixel.data[3] === 0;
+					if (!isTransparent) {
+						ctx.strokeText(x + offsetX, tx + scale - padding, ty + scale - padding - lineHeight, scale - (2*padding));
+						ctx.strokeText(y + offsetY, tx + scale - padding, ty + scale - padding, scale - (2*padding));
+						ctx.fillText(x + offsetX, tx + scale - padding, ty + scale - padding - lineHeight, scale - (2*padding));
+						ctx.fillText(y + offsetY, tx + scale - padding, ty + scale - padding, scale - (2*padding));
+					}
+				}
+			  }
+			}
+		</script>
+	</body>
+</html>
