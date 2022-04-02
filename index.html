@@ -37,15 +37,19 @@
                                         <div class="col-6 mb-3">
                                             <label for="url" class="form-label" title="yes upload somewhere else and link here, file upload is still WIP lol">Source image URL</label>
                                             <div class="input-group">
-                                                <input id="url" class="form-control" type="text" />
-                                                <button id="load" class="btn btn-primary">load Image</button>
+                                                <input id="url" class="form-control form-control-lg" type="url" />
+                                                <button id="load" class="btn btn-primary">Use URL</button>
                                             </div>
                                         </div>
-                                        <div class="col-6 m-auto">
-                                            <img id="img" src="" />
+                                        <div class="col-6 mb-3">
+                                            <label for="file" class="form-label">Upload Source Image File <span class="badge bg-primary">NEW</span></label>
+                                            <input id="file" class="form-control form-control-lg" type="file" accept="image/*" />
                                         </div>
                                     </div>
                                 </form>
+                                <div class="align-center d-flex justify-content-center">
+                                    <img id="img" src="" height="56" />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -63,18 +67,17 @@
                             <div class="accordion-body collapsed">
                                 <form id="template-form">
                                     <div class="row">
-                                        <div class="col-3 mb-3">
+                                        <div class="col-3 mb-3 text-end">
                                             <label for="x" class="form-label" title="yes the first number listed">Top Left Corner <span class="fw-bold">X</span> Coordinate</label>
                                             <input id="x" class="form-control text-end" type="number" value="334" />
                                         </div>
-                                        <div class="col-3 mb-3">
+                                        <div class="col-3 mb-3 text-end">
                                             <label for="y" class="form-label" title="the second number listed">Top Left Corner <span class="fw-bold">Y</span> Coordinate</label>
                                             <input id="y" class="form-control text-end" type="number" value="75" />
                                         </div>
-                                        <div class="col-2 mb-3">
+                                        <div class="col-2 mb-3 text-end">
                                             <label for="scale" class="form-label" title="How many pixels larger should each pixel be in the template">Scale Up Factor</label>
-                                            <input id="scale" class="form-control text-end" type="number" value="32" min="20"
-                                                max="100" />
+                                            <input id="scale" class="form-control text-end" type="number" value="32" min="20" max="64" />
                                         </div>
                                         <div class="col-4 mb-3 m-auto">
                                             <button id="btn"

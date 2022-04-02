@@ -5,6 +5,7 @@ img.crossOrigin = 'anonymous';
 
 const imageSourceForm = document.getElementById('image-source-form');
 const urlInput = document.getElementById('url');
+const fileInput = document.getElementById('file');
 const templateForm = document.getElementById('template-form');
 const xInput = document.getElementById('x');
 const yInput = document.getElementById('y');
@@ -14,15 +15,18 @@ const imageSourceCollapse = new bootstrap.Collapse(document.getElementById('imag
 const templateSettingsCollapse = new bootstrap.Collapse(document.getElementById('template-settings-accordian-body'), { toggle: false });
 const templateOutputCollapse = new bootstrap.Collapse(document.getElementById('template-output-accordian-body'), { toggle: false });
 
+
+img.onload = imageLoad;
+fileInput.onchange = loadImageFromFile;
+
 imageSourceForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    loadImage();
+    loadImageFromUrl();
 });
 templateForm.addEventListener('submit', function(e) {
     e.preventDefault();
     draw();
 });
-
 
 loadTestDefaults();
 
@@ -30,15 +34,51 @@ loadTestDefaults();
 function loadTestDefaults() {
     img.src = 'https://i.imgur.com/fEs3kr1.png';
     urlInput.value = img.src;
-    img.onerror = function(e) { alert('URL didn\'t work lol. Try uploading to imgur instead.'); }
+    img.onerror = err => {
+        console.error('loadTestDefaults error', err);
+        alert('URL didn\'t work lol. Try uploading to imgur instead.');
+    };
+
+    // Skip normal loading process for default testing
+    const oldOnload = img.onload;
+    img.onload = () => img.onload = oldOnload;
+        
 }
 
-function loadImage() {
-    img.onload = () => {
-        templateSettingsCollapse.show();
-        templateOutputCollapse.hide();
+
+function loadImageFromFile() {
+    img.onerror = err => {
+        console.error('loadImageFromFile error', err);
+        alert('Whoopies something went wrong lol ¯\\_(ツ)_/¯ or maybe you screwed up.  If you didn\'t, then open an issue on github pl0x');
     };
+    const fileUrl = URL.createObjectURL(this.files[0]);
+    // img.onload = imageLoad;
+    img.removeAttribute('height');
+    img.src = fileUrl;
+}
+
+function loadImageFromUrl() {
+    img.onerror = err => {
+        console.error('loadImageFromUrl error', err);
+        alert('URL didn\'t work lol. Try uploading to imgur instead.');
+    };
+    // img.onload = imageLoad;
+    img.removeAttribute('height');
     img.src = urlInput.value;
+}
+
+function imageLoad() {
+
+    const width = img.width;
+    const height = img.height;
+    let warning = false;
+    if (width * height > 200 * 200) {
+        alert('Be careful using large images! Generating a template for this larger image might crash your tab, or just lag for a bit.');
+        warning = true;
+    }
+    
+    templateSettingsCollapse.show();
+    templateOutputCollapse.hide();
 }
 
 function draw() {
