@@ -47,7 +47,8 @@
                                         </div>
                                     </div>
                                 </form>
-                                <div class="align-center d-flex justify-content-center">
+                                <div class="d-flex flex-column align-items-center justify-content-center">
+                                    <div id="img-dimensions">&nbsp;</div>
                                     <img id="img" src="" height="56" />
                                 </div>
                             </div>
@@ -80,8 +81,7 @@
                                             <input id="scale" class="form-control text-end" type="number" value="32" min="20" max="64" />
                                         </div>
                                         <div class="col-4 mb-3 m-auto">
-                                            <button id="btn"
-                                                class="btn btn-primary w-100">Create</button>
+                                            <button id="btn" class="btn btn-primary w-100" disabled>Create</button>
                                         </div>
                                     </div>
                                 </form>
@@ -90,9 +90,9 @@
                     </div>
 
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="template-accordian-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#template-output-accordian-body" aria-expanded="false"
+                        <h2 class="accordion-header" id="template-output-accordian-header">
+                            <button id="template-output-accordian-btn" class="accordion-button collapsed" type="button" disabled 
+                                data-bs-toggle="collapse" data-bs-target="#template-output-accordian-body" aria-expanded="false"
                                 aria-controls="template-output-accordian-body">
                                 Output
                             </button>

@@ -4,3 +4,10 @@ canvas {
 body {
     overflow-y: scroll;
 }
+.accordion-button:not([disabled]):hover {
+    color: #094bad;
+    background-color: #f0f6ff;
+}
+button[disabled], button.disabled {
+    cursor: not-allowed;
+}
