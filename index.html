@@ -19,6 +19,26 @@
         <main role="main">
             <div class="container">
                 <h1 class="pt-5 mb-4">Generate Template for r/Place</h1>
+                <button id="reset" class="d-none btn btn-lg btn-outline-danger mb-3">Reset</button>
+
+                <div class="accordion mb-4" id="important-accordian">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="important-accordian-header">
+                            <button id="important-accordion-button" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#important-accordian-body" aria-expanded="false"
+                                aria-controls="important-accordian-body">
+                                Important Information
+                            </button>
+                        </h2>
+                        <div id="important-accordian-body" class="accordion-collapse collapse"
+                            aria-labelledby="important-accordian">
+                            <div class="accordion-body collapsed">
+                                @Voiture ❤
+                                <div class="float-end" title="DGG4LYFE">😎🤙</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="accordion" id="template-form-accordian">
                     <div class="accordion-item">
@@ -48,8 +68,8 @@
                                     </div>
                                 </form>
                                 <div class="d-flex flex-column align-items-center justify-content-center">
-                                    <div id="img-dimensions">&nbsp;</div>
-                                    <img id="img" src="" height="56" />
+                                    <div id="img-dimensions">width x height</div>
+                                    <img id="img" src="" height="56" style="min-height: 56px;" />
                                 </div>
                             </div>
                         </div>
@@ -70,11 +90,11 @@
                                     <div class="row">
                                         <div class="col-3 mb-3 text-end">
                                             <label for="x" class="form-label" title="yes the first number listed">Top Left Corner <span class="fw-bold">X</span> Coordinate</label>
-                                            <input id="x" class="form-control text-end" type="number" value="334" />
+                                            <input id="x" class="form-control text-end" type="number" value="0" />
                                         </div>
                                         <div class="col-3 mb-3 text-end">
                                             <label for="y" class="form-label" title="the second number listed">Top Left Corner <span class="fw-bold">Y</span> Coordinate</label>
-                                            <input id="y" class="form-control text-end" type="number" value="75" />
+                                            <input id="y" class="form-control text-end" type="number" value="0" />
                                         </div>
                                         <div class="col-2 mb-3 text-end">
                                             <label for="scale" class="form-label" title="How many pixels larger should each pixel be in the template">Scale Up Factor</label>
@@ -101,8 +121,9 @@
                             aria-labelledby="template-output-accordian">
                             <div class="accordion-body">
                                 
-                                    <div class="mb-2" title="DGG4LYFE">Right click, 'copy image', and paste it to your favorite <a
-                                            href="https://imgur.com/upload" target="_blank">image uploader</a></div>
+                                <div class="mb-2" title="DGG4LYFE">Right click, 'copy image', and paste it to your favorite <a
+                                    href="https://imgur.com/upload" target="_blank">image uploader</a></div>
+                                    <div class="mb-2"><a id="template-link" href="/" target="_blank">Link to these settings</a></div>
                                     <div class="overflow-auto">
                                         <canvas id="canvas"></canvas>
                                     </div>

@@ -11,3 +11,19 @@ body {
 button[disabled], button.disabled {
     cursor: not-allowed;
 }
+#template-output-accordian-btn {
+    scroll-margin-top: 1em;
+}
+
+#important-accordion-button.accordion-button:not(.collapsed) {
+    color: #e40c0c;
+    background-color: #ffe7e7;
+}
+#important-accordion-button.accordion-button.collapsed {
+    color: #ad0909;
+    background-color: #fff0f0;
+}
+#important-accordion-button.accordion-button:not([disabled]):hover {
+    color: #e40c0c;
+    background-color: #ffe7e7;
+}
