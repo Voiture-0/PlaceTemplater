@@ -1,88 +1,118 @@
 <html>
-	<head>
-	</head>
-	<body>
-		<label>Source image URL</label>
-		<input id="url" type="text" />
-		<button id="load">load Image</button>
-		<img id="img" src="https://i.imgur.com/Sq0mW5l.png" />
-		<br>
-		<label>top left corner coordinates</label>
-		<input id="x" type="number" value="334" />
-		<input id="y" type="number" value="75" />
-		<label>Scale up factor</label>
-		<input id="scale" type="number" value="32" min="20" max="100" />
-		<button id="btn">Create</button>
-		<br>
-		<canvas id="canvas"></canvas>
-		<div id="result"></div>
-		<script>
-			const canvas = document.getElementById("canvas");
-			const ctx = canvas.getContext('2d');
-			const img = document.getElementById('img');
-			img.crossOrigin = 'anonymous';
-			img.src = 'https://i.imgur.com/fEs3kr1.png';
-			document.getElementById('url').value = img.src;
 
-			document.getElementById('btn').addEventListener('click', draw);
-			document.getElementById('load').addEventListener('click', loadImage);
-			
-			function loadImage() {
-				img.src = document.getElementById('url').value;
-			}
-			
-			function draw() {
-			  const scale = Number.parseInt(document.getElementById('scale').value);
-			  const width = img.width*scale;
-			  const height = img.height*scale;
-			  const cnvWidth = width + 1
-			  const cnvHeight = height + 1;
-			  canvas.width = cnvWidth;
-			  canvas.height = cnvHeight;
-			  
-			  // Draw big image
-			  ctx.imageSmoothingEnabled = false;
-			  ctx.drawImage(img, 0, 0, img.width, img.height, 1, 1, width, height);
-			  
-			  // draw grid lines
-			  ctx.fillStyle = 'grey';
-			  const maxLineX = img.width;
-			  const maxLineY = img.height;
-			  let line = -1;
-			  while (line++ < maxLineX) {
-				ctx.fillRect(scale*line,0,1,cnvHeight);
-			  }
-			  line = -1;
-			  while (line++ < maxLineY) {
-				ctx.fillRect(0, scale*line,cnvWidth,1);
-			  }
-			  
-			  // Draw coordinates
-			  const offsetX = Number.parseInt(document.getElementById('x').value);
-			  const offsetY = Number.parseInt(document.getElementById('y').value);
-			  ctx.fillStyle = 'white';
-			  ctx.strokeStyle = 'black';
-			  ctx.lineWidth = 2;
-			  const lineHeight = Math.floor(scale * 0.4);
-			  ctx.font = `${lineHeight}px monospace`;
-			  ctx.direction = 'rtl';
-			  const padding = Math.floor(scale * 0.12);
-			  for (let x = 0; x < img.width; x++) {
-				let tx = x*scale;
-				for(let y = 0; y < img.height; y++) {
-					let ty = y*scale;
-					
-					const pixel = ctx.getImageData(tx+1, ty+1, 1, 1);
-					const isTransparent = pixel.data[3] === 0;
-					if (!isTransparent) {
-						ctx.strokeText(x + offsetX, tx + scale - padding, ty + scale - padding - lineHeight, scale - (2*padding));
-						ctx.strokeText(y + offsetY, tx + scale - padding, ty + scale - padding, scale - (2*padding));
-						ctx.fillText(x + offsetX, tx + scale - padding, ty + scale - padding - lineHeight, scale - (2*padding));
-						ctx.fillText(y + offsetY, tx + scale - padding, ty + scale - padding, scale - (2*padding));
-					}
-				}
-			  }
-			}
-		</script>
-	</body>
+<head>
+    <title>Template Maker</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css"
+        integrity="sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.min.js"
+        integrity="sha512-OvBgP9A2JBgiRad/mM36mkzXSXaJE9BEIENnVEmeZdITvwT09xnxLtT4twkCa8m/loMbPHsvPl0T8lRGVBwjlQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js" defer></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <main role="main">
+            <div class="container">
+                <h1 class="pt-5 mb-4">Generate Template for r/Place</h1>
+
+                <div class="accordion" id="template-form-accordian">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="image-source-accordian-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#image-source-accordian-body" aria-expanded="false"
+                                aria-controls="image-source-accordian-body">
+                                Link Source Image (pixel perfect size)
+                            </button>
+                        </h2>
+                        <div id="image-source-accordian-body" class="accordion-collapse collapse"
+                            aria-labelledby="image-source-accordian">
+                            <div class="accordion-body collapsed">
+                                <form id="image-source-form">
+                                    <div class="row">
+                                        <div class="col-6 mb-3">
+                                            <label for="url" class="form-label" title="yes upload somewhere else and link here, file upload is still WIP lol">Source image URL</label>
+                                            <div class="input-group">
+                                                <input id="url" class="form-control" type="text" />
+                                                <button id="load" class="btn btn-primary">load Image</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 m-auto">
+                                            <img id="img" src="" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="template-settings-accordian-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#template-settings-accordian-body" aria-expanded="false"
+                                aria-controls="template-settings-accordian-body">
+                                Template Settings
+                            </button>
+                        </h2>
+                        <div id="template-settings-accordian-body" class="accordion-collapse collapse"
+                            aria-labelledby="template-settings-accordian">
+                            <div class="accordion-body collapsed">
+                                <form id="template-form">
+                                    <div class="row">
+                                        <div class="col-3 mb-3">
+                                            <label for="x" class="form-label" title="yes the first number listed">Top Left Corner <span class="fw-bold">X</span> Coordinate</label>
+                                            <input id="x" class="form-control text-end" type="number" value="334" />
+                                        </div>
+                                        <div class="col-3 mb-3">
+                                            <label for="y" class="form-label" title="the second number listed">Top Left Corner <span class="fw-bold">Y</span> Coordinate</label>
+                                            <input id="y" class="form-control text-end" type="number" value="75" />
+                                        </div>
+                                        <div class="col-2 mb-3">
+                                            <label for="scale" class="form-label" title="How many pixels larger should each pixel be in the template">Scale Up Factor</label>
+                                            <input id="scale" class="form-control text-end" type="number" value="32" min="20"
+                                                max="100" />
+                                        </div>
+                                        <div class="col-4 mb-3 m-auto">
+                                            <button id="btn"
+                                                class="btn btn-primary w-100">Create</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="template-accordian-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#template-output-accordian-body" aria-expanded="false"
+                                aria-controls="template-output-accordian-body">
+                                Output
+                            </button>
+                        </h2>
+                        <div id="template-output-accordian-body" class="accordion-collapse collapse"
+                            aria-labelledby="template-output-accordian">
+                            <div class="accordion-body">
+                                
+                                    <div class="mb-2" title="DGG4LYFE">Right click, 'copy image', and paste it to your favorite <a
+                                            href="https://imgur.com/upload" target="_blank">image uploader</a></div>
+                                    <div class="overflow-auto">
+                                        <canvas id="canvas"></canvas>
+                                    </div>
+                                    
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
 </html>

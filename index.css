@@ -1,0 +1,6 @@
+canvas {
+    image-rendering: pixelated;
+}
+body {
+    overflow-y: scroll;
+}
