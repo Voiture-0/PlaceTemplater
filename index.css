@@ -79,3 +79,6 @@ button[disabled], button.disabled {
     box-shadow: 0px 0px 0px 1px black;
     margin-bottom: -4px;
 }
+.hidden {
+    visibility: hidden;
+}

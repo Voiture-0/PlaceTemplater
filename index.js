@@ -1,3 +1,6 @@
+import { UrlManager } from './modules/UrlManager.js';
+import { ProgressManager } from './modules/ProgressManager.js';
+
 (async function() {
     const TEST_MODE = false;
 
@@ -18,7 +21,7 @@
     const scaleInput = document.getElementById('scale');
 
     const generateBtn = document.getElementById('btn');
-    const generateProgress = document.getElementById('generate-progress-bar');
+    const generateProgressBar = document.getElementById('generate-progress-bar');
     const generateProgressLabel = document.getElementById('generate-progress-label');
     const templateLink = document.getElementById('template-link');
     const placeLink = document.getElementById('place-link');
@@ -29,6 +32,9 @@
     const templateSettingsCollapse = new bootstrap.Collapse(document.getElementById('template-settings-accordian-body'), { toggle: false });
     const templateOutputCollapse = new bootstrap.Collapse(document.getElementById('template-output-accordian-body'), { toggle: false });
     const templateOutputCollapseBtn = document.getElementById('template-output-accordian-btn');
+
+    const urlManager = new UrlManager();
+    const progressManager = new ProgressManager(generateProgressBar, generateProgressLabel);
 
     img.crossOrigin = 'anonymous';
     img.onload = imageLoad;
@@ -44,10 +50,15 @@
     });
 
     resetBtn.addEventListener('click', function(e) {
-        const url = new URL(window.location);
-        url.search = '';
-        window.history.pushState({}, document.title, url);
-        window.location.href = window.location.href;
+        urlManager.resetUrl();
+    });
+
+    window.addEventListener('popstate', function (e) {
+        // window.location.href = document.location.href;
+        if (!progressManager.isIdle()) {
+            cancelDraw = true;
+        }
+        loadUrlValues(true);
     });
 
     let cancelDraw = false;
@@ -79,19 +90,19 @@
         }
     }
 
-    async function loadUrlValues() {
+    async function loadUrlValues(fast = false) {
         if (window.location.search == null || window.location.search == '') return;
 
         // Show reset button
         resetBtn.classList.toggle('d-none', false);
 
         // Get values from url search
-        const searchParams = new URLSearchParams(window.location.search);
+        const searchParams = urlManager.getUrlSearch();
         const imgUrl = searchParams.get('imgUrl');
         const x = searchParams.get('x');
         const y = searchParams.get('y');
         const scale = searchParams.get('scale');
-        const skip = (searchParams.get('skip') === 'true');
+        const skip = (searchParams.get('skip') === 'true') || fast;
         
         // load values
         const sleepTime = skip ? 0 : 300;
@@ -100,7 +111,7 @@
             () => urlInput.value = imgUrl,
             () => loadUrlBtn.focus(),
             () => loadUrlBtn.click(),
-            () => sleep(sleepTime),
+            () => sleep(500),
             () => xInput.focus(),
             () => xInput.value = x,
             () => yInput.focus(),
@@ -109,10 +120,11 @@
             () => scaleInput.value = scale,
             () => generateBtn.focus(),
             () => generateBtn.click(),
-
         ];
+        
         await sleepBetweenActions(actions, sleepTime);
     }
+
     async function sleepBetweenActions(actions, sleepTime) {
         for(const action of actions) {
             await sleep(sleepTime);
@@ -163,26 +175,29 @@
 
         img.style.minHeight = null;
 
-        error =  error && !TEST_MODE;
+        error = error && !TEST_MODE;
 
         generateBtn.classList.toggle('btn-danger', (warning || error));
-        generateBtn.toggleAttribute('disabled', error)
+        generateBtn.toggleAttribute('disabled', error);
         
         if (error) return;
 
+        progressManager.clear();
+
         // show next step
-        setTimeout(() => {
-            templateSettingsCollapse.show();
-            templateOutputCollapse.hide();
-        }, 300);
-        
+        templateSettingsCollapse.show();
+        templateOutputCollapse.hide();
     }
 
     async function draw() {
+        const startTime = performance.now();
+
         // Lock form
         toggleFormLocked(true);
-        
-        let drawProgress = 0;
+
+        progressManager.begin(0, img.width);
+
+        canvas.classList.add('hidden');
         
         const scale = Number.parseInt(scaleInput.value);
         const width = img.width * scale;
@@ -226,30 +241,37 @@
                 const ty = y * scale;
                 drawCoordinate(ctx, tx, ty, x, y, offsetX, offsetY, scale, padding, lineHeight, textMaxWidth);
             }
-            drawProgress++;
-            const percentComplete = (drawProgress/img.width*100);
-            generateProgress.style.width = percentComplete + '%';
-            generateProgressLabel.innerText = Math.floor(percentComplete) + '%';
+            progressManager.tickProgress();
             if (cancelDraw) {
                 cancelDraw = false;
                 toggleFormLocked(false);
-                generateProgressLabel.innerText = 'Cancelled';
+                progressManager.cancel();
                 return;
             }
             await nextFrame();
         }
 
+        const endTime = performance.now();
+        const duration = Math.floor(endTime - startTime);
+        const minDuration = 400;
+        if (duration < minDuration) {
+            await sleep(minDuration - duration);
+        }
+
         templateOutputCollapseBtn.disabled = false;
         templateOutputCollapse.show();
-        const url = new URL(window.location);
-        url.search = '';
-        window.history.replaceState({}, document.title, url);
+        
         if (img.src.startsWith('blob:')) {
+            urlManager.clearUrlSearch();
             templateLink.href = '';
             templateLink.classList.toggle('d-none', true);
         } else {
-            const url = createUrl(true);
-            // window.history.pushState({}, document.title, url);
+            const searchParams = getInputsObject();
+            const url = urlManager.createUrlSearch(searchParams);
+            // console.log(url.search === window.location.search, `${url.search} === ${window.location.search}`);
+            if (url.search !== window.location.search) {
+                urlManager.setNewUrl(url);
+            }
             templateLink.href = url;
             templateLink.classList.toggle('d-none', false);
         }
@@ -264,20 +286,21 @@
         const ry = randomNumber(offsetY, offsetY + img.height - 1);
         randomPlaceLink.href = `${redditUrl}&cx=${rx}&cy=${ry}`;
         randomPlaceLink.title = `(${rx}, ${ry})`;
-        const randomPixel = ctx.getImageData((rx * scale) + 1, (ry * scale) + 1, 1, 1);
+        const randomPixel = ctx.getImageData(((rx - offsetX) * scale) + 1, ((ry - offsetY) * scale) + 1, 1, 1);
         randomPixelColor.style.backgroundColor = `rgba(${randomPixel.data[0]}, ${randomPixel.data[1]}, ${randomPixel.data[2]}, ${randomPixel.data[3]})`;
-        
+
+        canvas.classList.remove('hidden');
+
         await sleep(300);
         templateOutputCollapseBtn.scrollIntoView();
-        await sleep(500);
         toggleFormLocked(false);
-        generateProgressLabel.innerText = 'Complete';
+        progressManager.complete();
     }
     
     function drawCoordinate(ctx, tx, ty, x, y, offsetX, offsetY, scale, padding, lineHeight, textMaxWidth) {
         const pixel = ctx.getImageData(tx + 1, ty + 1, 1, 1); // add 1 to avoid grid lines
         const isTransparent = (pixel.data[3] === 0);
-        const isLight = (pixel.data[0] + pixel.data[1] + pixel.data[2] > 640);
+        const isLight = (pixel.data[0] + pixel.data[1] + pixel.data[2] > 600);
         if (isLight) {
             ctx.fillStyle = 'black';
             ctx.strokeStyle = 'white';
@@ -297,17 +320,18 @@
         }
     }
 
-    function createUrl() {
+    function getInputsObject() {
         const imgUrl = urlInput.value;
         const x = xInput.value;
         const y = yInput.value;
         const scale = scaleInput.value;
-        const url = new URL(window.location);
-        url.searchParams.set('imgUrl', imgUrl);
-        url.searchParams.set('x', x);
-        url.searchParams.set('y', y);
-        url.searchParams.set('scale', scale);
-        return url;
+        return {
+            imgUrl,
+            x,
+            y,
+            scale,
+            skip: true,
+        };
     }
 
     function toggleFormLocked(locked) {
