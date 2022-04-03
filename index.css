@@ -27,3 +27,24 @@ button[disabled], button.disabled {
     color: #e40c0c;
     background-color: #ffe7e7;
 }
+.emote {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: -22px;
+}
+.dggL.emote {
+    background-image: url('res/dggL.png');
+    width: 28px;
+    height: 28px;
+}
+.PepoTurkey.emote {
+    background-image: url('res/PepoTurkey.png');
+    width: 34px;
+    height: 28px;
+}
+.sodaSmile.emote {
+    background-image: url('res/sodaSmile.png');
+    width: 28px;
+    height: 28px;
+}
