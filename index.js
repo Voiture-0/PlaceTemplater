@@ -8,7 +8,7 @@ import { ProgressManager } from './modules/ProgressManager.js';
     const ctx = canvas.getContext('2d');
     const imgDim = document.getElementById('img-dimensions');
     const img = document.getElementById('img');
-    const redditUrl = 'https://new.reddit.com/r/place/?px=64';
+    const redditUrl = 'https://new.reddit.com/r/place/';
 
     const resetBtn = document.getElementById('reset');
     const imageSourceForm = document.getElementById('image-source-form');
@@ -27,6 +27,7 @@ import { ProgressManager } from './modules/ProgressManager.js';
     const placeLink = document.getElementById('place-link');
     const randomPlaceLink = document.getElementById('random-place-link');
     const randomPixelColor = document.getElementById('random-pixel-color');
+    const randomPixelCoords = document.getElementById('random-pixel-coords');
 
     const imageSourceCollapse = new bootstrap.Collapse(document.getElementById('image-source-accordian-body'), { toggle: true });
     const templateSettingsCollapse = new bootstrap.Collapse(document.getElementById('template-settings-accordian-body'), { toggle: false });
@@ -289,13 +290,14 @@ import { ProgressManager } from './modules/ProgressManager.js';
         // Get centered coordinates
         const cx = Math.round(offsetX + img.width/2);
         const cy = Math.round(offsetY + img.height/2);
-        placeLink.href = `${redditUrl}&cx=${cx}&cy=${cy}`;
-        placeLink.innerText = `${redditUrl}&cx=${cx}&cy=${cy}`;
+        placeLink.href = `${redditUrl}?px=32&cx=${cx}&cy=${cy}`;
+        placeLink.innerText = `${redditUrl}?px=32&cx=${cx}&cy=${cy}`;
         // Get random coordinates inside template
         const rx = randomNumber(offsetX, offsetX + img.width - 1);
         const ry = randomNumber(offsetY, offsetY + img.height - 1);
-        randomPlaceLink.href = `${redditUrl}&cx=${rx}&cy=${ry}`;
+        randomPlaceLink.href = `${redditUrl}?px=10&cx=${rx}&cy=${ry}`;
         randomPlaceLink.title = `(${rx}, ${ry})`;
+        randomPixelCoords.innerText = `(${rx}, ${ry})`;
         const randomPixel = ctx.getImageData(((rx - offsetX) * scale) + 1, ((ry - offsetY) * scale) + 1, 1, 1);
         randomPixelColor.style.backgroundColor = `rgba(${randomPixel.data[0]}, ${randomPixel.data[1]}, ${randomPixel.data[2]}, ${randomPixel.data[3]})`;
 
