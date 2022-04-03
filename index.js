@@ -1,12 +1,13 @@
 (async function() {
-    const canvas = document.getElementById("canvas");
+    const TEST_MODE = false;
+
+    const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const imgDim = document.getElementById('img-dimensions');
     const img = document.getElementById('img');
-    img.crossOrigin = 'anonymous';
+    const redditUrl = 'https://new.reddit.com/r/place/?px=64';
 
     const resetBtn = document.getElementById('reset');
-
     const imageSourceForm = document.getElementById('image-source-form');
     const urlInput = document.getElementById('url');
     const loadUrlBtn = document.getElementById('load');
@@ -17,14 +18,19 @@
     const scaleInput = document.getElementById('scale');
 
     const generateBtn = document.getElementById('btn');
-    const templateLink = document.getElementById('template-link')
+    const generateProgress = document.getElementById('generate-progress-bar');
+    const generateProgressLabel = document.getElementById('generate-progress-label');
+    const templateLink = document.getElementById('template-link');
+    const placeLink = document.getElementById('place-link');
+    const randomPlaceLink = document.getElementById('random-place-link');
+    const randomPixelColor = document.getElementById('random-pixel-color');
 
     const imageSourceCollapse = new bootstrap.Collapse(document.getElementById('image-source-accordian-body'), { toggle: true });
     const templateSettingsCollapse = new bootstrap.Collapse(document.getElementById('template-settings-accordian-body'), { toggle: false });
     const templateOutputCollapse = new bootstrap.Collapse(document.getElementById('template-output-accordian-body'), { toggle: false });
     const templateOutputCollapseBtn = document.getElementById('template-output-accordian-btn');
 
-
+    img.crossOrigin = 'anonymous';
     img.onload = imageLoad;
     fileInput.onchange = loadImageFromFile;
 
@@ -44,31 +50,32 @@
         window.location.href = window.location.href;
     });
 
-    loadTestDefaults();
+    let cancelDraw = false;
+
+    await loadTestDefaults();
 
     loadUrlValues();
 
 
-    function loadTestDefaults(testing = false) {
+    async function loadTestDefaults() {
         urlInput.value = 'https://i.imgur.com/fEs3kr1.png';
-        if (testing) {
+        if (TEST_MODE) {
             xInput.value = 334;
             yInput.value = 75;
-            // img.src = urlInput.value;
-            // img.onerror = err => {
-            //     console.error('loadTestDefaults error', err);
-            //     // alert('URL didn\'t work lol. Try uploading to imgur instead.');
-            // };
-            // // Skip normal loading process for default testing
-            // const oldOnload = img.onload;
-            // img.onload = () => img.onload = oldOnload;
+            img.src = urlInput.value;
+            img.onerror = err => {
+                console.error('loadTestDefaults error', err);
+                debugger;
+            };
+            // Skip normal loading process for default testing
+            const oldOnload = img.onload;
+            img.onload = () => img.onload = oldOnload;
 
-            setTimeout(() => {
-                loadUrlBtn.click();
-                setTimeout(() => {
-                    generateBtn.click();
-                }, 1000);
-            }, 1000);
+            const actions = [
+                () => loadUrlBtn.click(),
+                () => generateBtn.click(),
+            ];
+            sleepBetweenActions(actions, 1000);
         }
     }
 
@@ -139,7 +146,6 @@
     }
 
     function imageLoad() {
-        
         // Check image dimensions
         const width = img.width;
         const height = img.height;
@@ -157,6 +163,8 @@
 
         img.style.minHeight = null;
 
+        error =  error && !TEST_MODE;
+
         generateBtn.classList.toggle('btn-danger', (warning || error));
         generateBtn.toggleAttribute('disabled', error)
         
@@ -170,7 +178,12 @@
         
     }
 
-    function draw() {
+    async function draw() {
+        // Lock form
+        toggleFormLocked(true);
+        
+        let drawProgress = 0;
+        
         const scale = Number.parseInt(scaleInput.value);
         const width = img.width * scale;
         const height = img.height * scale;
@@ -213,6 +226,17 @@
                 const ty = y * scale;
                 drawCoordinate(ctx, tx, ty, x, y, offsetX, offsetY, scale, padding, lineHeight, textMaxWidth);
             }
+            drawProgress++;
+            const percentComplete = (drawProgress/img.width*100);
+            generateProgress.style.width = percentComplete + '%';
+            generateProgressLabel.innerText = Math.floor(percentComplete) + '%';
+            if (cancelDraw) {
+                cancelDraw = false;
+                toggleFormLocked(false);
+                generateProgressLabel.innerText = 'Cancelled';
+                return;
+            }
+            await nextFrame();
         }
 
         templateOutputCollapseBtn.disabled = false;
@@ -229,8 +253,25 @@
             templateLink.href = url;
             templateLink.classList.toggle('d-none', false);
         }
-        setTimeout(() => templateOutputCollapseBtn.scrollIntoView(), 300);
 
+        // Get centered coordinates
+        const cx = Math.round(offsetX + img.width/2);
+        const cy = Math.round(offsetY + img.height/2);
+        placeLink.href = `${redditUrl}&cx=${cx}&cy=${cy}`;
+        placeLink.innerText = `${redditUrl}&cx=${cx}&cy=${cy}`;
+        // Get random coordinates inside template
+        const rx = randomNumber(offsetX, offsetX + img.width - 1);
+        const ry = randomNumber(offsetY, offsetY + img.height - 1);
+        randomPlaceLink.href = `${redditUrl}&cx=${rx}&cy=${ry}`;
+        randomPlaceLink.title = `(${rx}, ${ry})`;
+        const randomPixel = ctx.getImageData((rx * scale) + 1, (ry * scale) + 1, 1, 1);
+        randomPixelColor.style.backgroundColor = `rgba(${randomPixel.data[0]}, ${randomPixel.data[1]}, ${randomPixel.data[2]}, ${randomPixel.data[3]})`;
+        
+        await sleep(300);
+        templateOutputCollapseBtn.scrollIntoView();
+        await sleep(500);
+        toggleFormLocked(false);
+        generateProgressLabel.innerText = 'Complete';
     }
     
     function drawCoordinate(ctx, tx, ty, x, y, offsetX, offsetY, scale, padding, lineHeight, textMaxWidth) {
@@ -269,7 +310,25 @@
         return url;
     }
 
+    function toggleFormLocked(locked) {
+        urlInput.disabled = locked;
+        loadUrlBtn.disabled = locked;
+        fileInput.disabled = locked;
+        xInput.disabled = locked;
+        yInput.disabled = locked;
+        scaleInput.disabled = locked;
+        generateBtn.disabled = locked;
+    }
+
+    function randomNumber(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
     function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    
+    function nextFrame() { return new Promise(requestAnimationFrame); }
 
 })();
 

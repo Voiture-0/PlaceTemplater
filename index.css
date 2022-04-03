@@ -48,3 +48,34 @@ button[disabled], button.disabled {
     width: 28px;
     height: 28px;
 }
+.progress {
+    position: relative;
+}
+#generate-progress {
+    height: 30px;
+}
+#generate-progress .progress-bar {
+    transition: unset;
+}
+.progress-bar-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    user-select: none;
+}
+#generate-progress .progress-bar-label {
+    font-size: 20px;
+    font-weight: 600;
+}
+.black-outlined {
+    color: white;
+    text-shadow: 0.05em 0 black, 0 0.05em black, -0.05em 0 black, 0 -0.05em black, -0.05em -0.05em black, -0.05em 0.05em black, 0.05em -0.05em black, 0.05em 0.05em black;
+}
+#random-pixel-color {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid white;
+    box-shadow: 0px 0px 0px 1px black;
+    margin-bottom: -4px;
+}

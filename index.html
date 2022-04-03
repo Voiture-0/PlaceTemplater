@@ -67,7 +67,7 @@
                                 <form id="image-source-form">
                                     <div class="row">
                                         <div class="col-6 mb-3">
-                                            <label for="url" class="form-label" title="yes upload somewhere else and link here, file upload is still WIP lol">Source image URL</label>
+                                            <label for="url" class="form-label" title="Must be direct path to img and the website must not be blocking crossorigin requests">Source image URL</label>
                                             <div class="input-group">
                                                 <input id="url" class="form-control form-control-lg" type="url" />
                                                 <button id="load" class="btn btn-primary">Use URL</button>
@@ -102,17 +102,21 @@
                                     <div class="row">
                                         <div class="col-3 mb-3 text-end">
                                             <label for="x" class="form-label" title="yes the first number listed">Top Left Corner <span class="fw-bold">X</span> Coordinate</label>
-                                            <input id="x" class="form-control text-end" type="number" value="0" />
+                                            <input id="x" class="form-control text-end" type="number" value="0" min="0" />
                                         </div>
                                         <div class="col-3 mb-3 text-end">
                                             <label for="y" class="form-label" title="the second number listed">Top Left Corner <span class="fw-bold">Y</span> Coordinate</label>
-                                            <input id="y" class="form-control text-end" type="number" value="0" />
+                                            <input id="y" class="form-control text-end" type="number" value="0" min="0" />
                                         </div>
                                         <div class="col-2 mb-3 text-end">
-                                            <label for="scale" class="form-label" title="How many pixels larger should each pixel be in the template">Scale Up Factor</label>
+                                            <label for="scale" class="form-label" title="How many pixels larger should each pixel be in the template. The larger the number the easier it will be to read the coordinates.">Scale Up Factor</label>
                                             <input id="scale" class="form-control text-end" type="number" value="32" min="20" max="64" />
                                         </div>
                                         <div class="col-4 mb-3 m-auto">
+                                            <div id="generate-progress" class="progress">
+                                                <div id="generate-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                                                <span id="generate-progress-label" class="progress-bar-label black-outlined"></span>
+                                            </div>
                                             <button id="btn" class="btn btn-primary w-100" disabled>Create</button>
                                         </div>
                                     </div>
@@ -133,12 +137,18 @@
                             aria-labelledby="template-output-accordian">
                             <div class="accordion-body">
                                 
-                                <div class="mb-2" title="DGG4LYFE">Right click, 'copy image', and paste it to your favorite <a
-                                    href="https://imgur.com/upload" target="_blank">image uploader</a></div>
-                                    <div class="mb-2"><a id="template-link" href="/" target="_blank">Link to these settings</a></div>
-                                    <div class="overflow-auto">
-                                        <canvas id="canvas"></canvas>
-                                    </div>
+                                <div class="mb-2" title="DGG4LYFE">
+                                    Right click, 'copy image', and paste it to your favorite 
+                                    <a href="https://imgur.com/upload" target="_blank">image uploader</a>
+                                    <a id="template-link" class="px-3 fw-bold" href="/" target="_blank">Link to these settings</a>
+                                </div>
+                                <div class="mb-2">
+                                    <a id="place-link" href="" target="_blank"></a>
+                                    <a id="random-place-link" class="px-3 fw-bold" href="" target="_blank"><span class="badge bg-primary">NEW</span> Send me to a random pixel to color <div id="random-pixel-color"></div></a>
+                                </div>
+                                <div class="overflow-auto">
+                                    <canvas id="canvas"></canvas>
+                                </div>
                                     
                             </div>
                         </div>
