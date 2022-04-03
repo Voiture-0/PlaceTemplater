@@ -135,8 +135,8 @@ import { ProgressManager } from './modules/ProgressManager.js';
 
     function loadImageFromFile() {
         img.onerror = err => {
-            console.error('loadImageFromFile error', err);
-            alert('Whoopies something went wrong lol, or maybe you screwed up.  If you didn\'t, then open an issue on github pl0x');
+            console.warn('loadImageFromFile error', err);
+            generateBtn.toggleAttribute('disabled', true);
         };
         try {
             const fileUrl = URL.createObjectURL(this.files[0]);
@@ -144,7 +144,7 @@ import { ProgressManager } from './modules/ProgressManager.js';
             img.src = fileUrl;
         } catch(err) {
             // Probably cancelled file picker
-            console.warn(err);
+            console.warn('Probably cancelled file picker', err);
         }
     }
 
@@ -152,9 +152,11 @@ import { ProgressManager } from './modules/ProgressManager.js';
         img.onerror = err => {
             console.error('loadImageFromUrl error', err);
             alert('URL didn\'t work lol. Try uploading to imgur and linking directly to the i.imgur.com/---.png image (not the album link) instead.');
+            generateBtn.toggleAttribute('disabled', true);
         };
         img.removeAttribute('height');
         img.src = urlInput.value;
+        fileInput.value = '';   // clear out file input
     }
 
     function imageLoad() {
@@ -171,6 +173,9 @@ import { ProgressManager } from './modules/ProgressManager.js';
         } else if (width * height >= 200 * 200) {
             alert('Be careful using large images! Generating a template for this larger image might crash your tab, or just lag for a bit.');
             warning = true;
+        } else if (!width) {
+            alert('No image loaded');
+            error = true;
         }
 
         img.style.minHeight = null;
@@ -190,6 +195,11 @@ import { ProgressManager } from './modules/ProgressManager.js';
     }
 
     async function draw() {
+        if (!img.width) {
+            alert('Add an image first');
+            return;
+        }
+
         const startTime = performance.now();
 
         // Lock form
