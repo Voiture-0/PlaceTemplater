@@ -8,24 +8,18 @@ body {
     color: #094bad;
     background-color: #f0f6ff;
 }
+html.dark .accordion-button:not([disabled]):hover {
+    color: #99b2cb;
+    background-color: #242b32;
+}
 button[disabled], button.disabled {
     cursor: not-allowed;
 }
 #template-output-accordian-btn {
     scroll-margin-top: 1em;
 }
-
-#important-accordion-button.accordion-button:not(.collapsed) {
-    color: #e40c0c;
-    background-color: #ffe7e7;
-}
-#important-accordion-button.accordion-button.collapsed {
-    color: #ad0909;
-    background-color: #fff0f0;
-}
-#important-accordion-button.accordion-button:not([disabled]):hover {
-    color: #e40c0c;
-    background-color: #ffe7e7;
+#important-accordion-button {
+    filter: hue-rotate(135deg);
 }
 .emote {
     display: inline-block;
@@ -81,4 +75,14 @@ button[disabled], button.disabled {
 }
 .hidden {
     visibility: hidden;
+}
+#dark-mode-toggle {
+    cursor: pointer;
+}
+#dark-mode-toggle::before {
+    margin-right: 8px;
+    content: '☀';
+}
+html.dark #dark-mode-toggle::before {
+    content: '🌒';
 }

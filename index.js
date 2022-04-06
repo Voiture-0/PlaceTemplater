@@ -242,7 +242,6 @@ import { ProgressManager } from './modules/ProgressManager.js';
         const offsetY = Number.parseInt(yInput.value);
         const lineHeight = Math.floor(scale * 0.4);
         ctx.font = `${lineHeight}px monospace`;
-        // ctx.direction = 'rtl';
         ctx.textAlign = 'right';
         ctx.lineWidth = 2;
         const padding = Math.floor(scale * 0.12);
