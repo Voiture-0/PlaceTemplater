@@ -76,8 +76,12 @@ button[disabled], button.disabled {
 .hidden {
     visibility: hidden;
 }
+#version {
+    z-index: 100;
+}
 #dark-mode-toggle {
     cursor: pointer;
+    z-index: 100;
 }
 #dark-mode-toggle::before {
     margin-right: 8px;
