@@ -82,3 +82,12 @@ button[disabled], button.disabled {
 html.dark #dark-mode-toggle::before {
     content: '🌒';
 }
+.theme-toggle .bi {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    fill: currentcolor;
+}
+.theme-toggle .dropdown-menu .active .bi {
+    display: block !important;
+}
