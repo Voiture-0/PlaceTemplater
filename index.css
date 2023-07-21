@@ -4,14 +4,6 @@ canvas {
 body {
     overflow-y: scroll;
 }
-.accordion-button:not([disabled]):hover {
-    color: #094bad;
-    background-color: #f0f6ff;
-}
-html.dark .accordion-button:not([disabled]):hover {
-    color: #99b2cb;
-    background-color: #242b32;
-}
 button[disabled], button.disabled {
     cursor: not-allowed;
 }
@@ -19,7 +11,7 @@ button[disabled], button.disabled {
     scroll-margin-top: 1em;
 }
 #important-accordion-button {
-    filter: hue-rotate(135deg);
+    filter: hue-rotate(60deg);
 }
 .emote {
     display: inline-block;
