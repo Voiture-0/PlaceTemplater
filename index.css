@@ -71,16 +71,8 @@ button[disabled], button.disabled {
 #version {
     z-index: 100;
 }
-#dark-mode-toggle {
-    cursor: pointer;
+.theme-toggle {
     z-index: 100;
-}
-#dark-mode-toggle::before {
-    margin-right: 8px;
-    content: '☀';
-}
-html.dark #dark-mode-toggle::before {
-    content: '🌒';
 }
 .theme-toggle .bi {
     width: 1em;
