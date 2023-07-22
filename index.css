@@ -91,3 +91,11 @@ html.dark #dark-mode-toggle::before {
 .theme-toggle .dropdown-menu .active .bi {
     display: block !important;
 }
+.flat-top {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.flat-bottom {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
